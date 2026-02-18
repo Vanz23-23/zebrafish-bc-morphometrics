@@ -2,7 +2,7 @@
 
 **Author:** Vanz Labitad
 **Institution:** University of Sussex, School of Life Sciences
-**Degree:** MSci Neuroscience, 2025
+**Degree:** MSci Neuroscience, 2026
 **Supervisor:** Katarina Moravkova
 
 ## Overview
