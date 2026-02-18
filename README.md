@@ -7,7 +7,7 @@
 
 ## Overview
 
-The larval zebrafish retina is topographically organised: the ventral retina samples the bright dorsal visual field (sky), while the dorsal retina samples the darker ventral field (ground). This project used manual annotation of serial-section electron microscopy data in webKnossos (dataset: `ZF_retina_opl_ipl_model_v5_segmentation_v1`) to compare the 3D morphology of S2 (OFF-pathway, inner plexiform layer stratum 2) and S4 (ON-pathway, stratum 4) monostratifying bipolar cells between dorsal and ventral retinal regions. The principal finding is that ventral S4 bipolar cells have significantly wider terminal arbors than their dorsal counterparts (Cohen's *d* = -3.12, *p* < 0.001), consistent with regional functional specialisation driven by the ecological demands of processing bright overhead stimuli.
+The larval zebrafish retina is topographically organised: the ventral retina samples the bright dorsal visual field (sky), while the dorsal retina samples the darker ventral field (ground). This project used manual annotation of serial-section electron microscopy data in webKnossos (dataset: `ZF_retina_opl_ipl_model_v5_segmentation_v1`) to compare the 3D morphology of S2 (OFF-pathway, inner plexiform layer stratum 2) and S4 (ON-pathway, stratum 4) monostratifying bipolar cells between dorsal and ventral retinal regions. The principal finding is that ventral S4 bipolar cells have significantly wider terminal than their dorsal counterparts (Cohen's *d* = -3.12, *p* < 0.001), consistent with regional functional specialisation driven by the ecological demands of processing bright overhead stimuli.
 
 ## Dataset
 
@@ -15,8 +15,8 @@ All data files are in `data/`:
 
 | File | Rows | Description |
 |------|------|-------------|
-| `morphometrics_clean.csv` | 185 | Post-QC morphometric measurements (24 columns including volume, surface area, lateral spread, IPL depth %, sphericity, aspect ratio) |
-| `morphometrics_raw.csv` | 222 | Pre-QC measurements (23 columns, no IPL depth normalisation) |
+| `morphometrics_clean.csv` | 185 | Post-Quality Check morphometric measurements (24 columns including volume, surface area, lateral spread, IPL depth %, sphericity, aspect ratio) |
+| `morphometrics_raw.csv` | 222 | Pre-Quality Check measurements (23 columns, no IPL depth normalisation) |
 | `exclusions_log.csv` | 37 | Excluded cells with reasons: volume outliers (>3 SD from group mean) or implausible IPL depth (<5% or >95%) |
 | `metadata_summary.csv` | 8 | Cell counts per annotator x region x cell type |
 | `descriptive_stats.csv` | 32 | Summary statistics (n, mean, SD, median, IQR) per group and metric |
@@ -29,7 +29,7 @@ Coordinates were extracted from 3D mesh reconstructions in nanometres and conver
 All cells were independently annotated by two trained annotators to assess inter-rater reliability:
 
 - **VL** -- Vanz Labitad (primary annotator)
-- **KM** -- Katarina Moravkova (independent annotator)
+- **KM** -- Katarina Moravkova (independent annotator/Supervisor)
 
 No significant differences were found between annotators across any morphometric measure (all *p* > 0.05, all Cohen's *d* < 0.10), confirming excellent inter-rater agreement. See `figure3_interrater.png` and the VL vs KM rows in `statistical_results.csv`.
 
@@ -64,7 +64,7 @@ Morphological divergence between dorsal and ventral S4 cells supports retinal to
 
 ## Data Access
 
-Raw EM image stacks and STL mesh files are proprietary to the University of Sussex and are not included in this repository. This repository contains only derived morphometric measurements and analysis code. Contact the supervisor for data access enquiries.
+Raw EM image stacks and STL mesh files are proprietary to the University of Sussex and are not included in this repository. This repository contains only derived morphometric measurements and analysis code. Contact the Author for data access enquiries.
 
 ## Figures
 
@@ -78,4 +78,4 @@ Raw EM image stacks and STL mesh files are proprietary to the University of Suss
 
 ## License
 
-Code: MIT License. Data: shared for academic transparency and reproducibility.
+Code: MIT License. Data: shared for academic transparency and reproducibility. For VL Dissertation!
