@@ -1,192 +1,161 @@
-<!--
-    If you're reading the raw markdown: hi.
-    🍎 Reveluv. Yes, this is intentional.
-    Definitive ranking: Perfect Velvet > Chill Kill > The Red
-    Favourite songs: Kingdom Come & Automatic.
-    Taste: immaculate.
--->
+# Regional Morphological Specialisation of Monostratifying Bipolar Cells in the Larval Zebrafish Retina
+
+**Author:** Vanz Labitad  
+**Institution:** University of Sussex, School of Life Sciences  
+**Degree:** MSci Neuroscience, 2026  
+**Supervisor:** Katarina Moravkova
+
+---
+
+This repository contains the analysis code, derived morphometric data, and figures for my dissertation project investigating regional morphological differences between monostratifying bipolar cell subtypes (S2 and S4) across the dorsal and ventral retina of larval zebrafish (*Danio rerio*).
+
+Cells were manually reconstructed from serial-section electron microscopy (ssEM) data using WebKnossos. 3D morphometric features — including volume, surface area, lateral spread, IPL depth, convex hull, and shape indices — were extracted from STL mesh exports. Statistical comparisons use Mann-Whitney U tests and Cohen's *d* effect sizes throughout.
 
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0f0000,50:8B0000,100:1a0000&height=220&section=header&text=Vanz%20Labitad&fontSize=56&fontColor=ffffff&fontAlignY=40&desc=Computational%20Neuroscience%20%E2%80%94%20University%20of%20Sussex&descAlignY=60&descColor=ff9999&animation=fadeIn" width="100%"/>
+<img src="assets/Ventral Vs Dorsal comparison.png"
+     alt="3D mesh reconstructions of S2 and S4 monostratifying bipolar cells — dorsal vs ventral retinal regions"
+     width="100%"/>
+<br/>
+<em>3D mesh reconstructions of S2 and S4 monostratifying bipolar cells — dorsal vs ventral retinal regions. Dataset: ZF_retina_opl_ipl_model_v5.</em>
 </div>
 
-<br/>
+---
 
-<div align="center">
+## Repository Structure
 
 ```
-Mapping neural circuits at nanometre resolution.
-Building reproducible pipelines that say what the data actually shows.
+zebrafish-bc-morphometrics/
+├── analysis/
+│   └── morphometric_analysis.py     # Main analysis pipeline
+├── data/
+│   ├── morphometrics_clean.csv      # 185 rows, 24 columns — post-QC dataset
+│   ├── morphometrics_raw.csv        # 222 rows, 23 columns — pre-QC dataset
+│   ├── exclusions_log.csv           # 37 excluded cells with reasons
+│   ├── metadata_summary.csv         # 8 rows — cell counts per group
+│   ├── descriptive_stats.csv        # 32 rows — summary statistics
+│   └── statistical_results.csv      # 32 rows — Mann-Whitney U + Cohen's d
+├── figures/
+│   ├── figure1_stratification.png   # IPL depth by cell type and region
+│   ├── figure2_regional_comparison.png  # Dorsal vs ventral morphology
+│   ├── figure3_interrater.png       # Inter-rater reliability (VL vs KM)
+│   ├── figure4_shape_complexity.png # Volume–surface area relationship
+│   └── figure5_effect_heatmap.png  # Cohen's d effect size heatmap
+└── assets/
+    ├── Ventral Vs Dorsal comparison.png
+    ├── S2 and S4 skeleotisations in Dorsal region.png
+    ├── Dorsal render.png
+    └── S4 Ventral skeletonisations.png
 ```
 
-</div>
+---
 
-<br/>
+## Dataset
+
+| File | Rows | Columns | Description |
+|---|---|---|---|
+| `morphometrics_raw.csv` | 222 | 23 | Pre-QC measurements from all annotated cells |
+| `morphometrics_clean.csv` | 185 | 24 | Post-QC dataset used in all analyses |
+| `exclusions_log.csv` | 37 | — | Excluded cells: volume outliers (>3 SD) or implausible IPL depth |
+| `metadata_summary.csv` | 8 | — | Cell counts per annotator × cell type × region group |
+| `descriptive_stats.csv` | 32 | — | Mean, SD, median, IQR per group and morphometric variable |
+| `statistical_results.csv` | 32 | — | Mann-Whitney U statistics, *p*-values, Cohen's *d* |
+
+**37 cells excluded** from the clean dataset: cells were removed if their volume fell outside ±3 SD of the group mean, or if their IPL depth fell outside the plausible 0–100% normalised range.
 
 ---
 
-## 🔬 About
+## Dual-Annotator Design
 
-**3rd-year MSci Neuroscience student** at the **University of Sussex** *(graduating Summer 2027)*, currently embedded in the **Baden Lab** doing hands-on zebrafish retinal connectomics. Right now, I'm actively reconstructing and comparing the 3D morphology of **monostratifying bipolar cell subtypes** across dorsal and ventral retinal regions using serial-section electron microscopy — the kind of work where your unit of analysis is measured in nanometres and your sample size is hand-annotated.
+All cells were annotated in WebKnossos by two independent annotators to assess inter-rater reliability:
 
-Outside the lab, I build computational projects at the intersection of **neuroscience, pharmacology, and data engineering** — with a consistent emphasis on being honest about what the numbers actually mean.
+| Annotator | Role |
+|---|---|
+| **VL** — Vanz Labitad | Primary annotator |
+| **KM** — Katarina Moravkova | Independent annotator (supervisor) |
 
-> *"I'm on my way to the kingdom come."* — Red Velvet
-
-<br/>
-
----
-
-<div align="center">
-  <img src="assets/Ventral Vs Dorsal comparison.png"
-       alt="3D mesh reconstructions of S2 and S4 monostratifying bipolar cells showing dorsal versus ventral retinal regions"
-       width="100%" />
-  <br/>
-  <em>3D mesh reconstructions of S2 and S4 monostratifying bipolar cells — dorsal vs ventral retinal regions. Dataset: ZF_retina_opl_ipl_model_v5.</em>
-</div>
-
-<br/>
+Inter-rater agreement was assessed across all morphometric variables. Results confirmed high reliability (all Cohen's *d* < 0.10, all *p* > 0.05), supporting the validity of the primary annotation set.
 
 ---
 
-## ⚙️ Stack
+## Analysis Pipeline
 
-<div align="center">
-
-**Languages & Analysis**
-
-![Python](https://img.shields.io/badge/Python-8B0000?style=for-the-badge&logo=python&logoColor=white)
-![R](https://img.shields.io/badge/R-A00000?style=for-the-badge&logo=r&logoColor=white)
-![SQL](https://img.shields.io/badge/SQL-B22222?style=for-the-badge&logo=sqlite&logoColor=white)
-
-**Data & Visualisation**
-
-![Pandas](https://img.shields.io/badge/Pandas-8B0000?style=for-the-badge&logo=pandas&logoColor=white)
-![NumPy](https://img.shields.io/badge/NumPy-A00000?style=for-the-badge&logo=numpy&logoColor=white)
-![SciPy](https://img.shields.io/badge/SciPy-B22222?style=for-the-badge&logo=scipy&logoColor=white)
-![Seaborn](https://img.shields.io/badge/Seaborn-8B0000?style=for-the-badge&logo=python&logoColor=white)
-![ggplot2](https://img.shields.io/badge/ggplot2-A00000?style=for-the-badge&logo=r&logoColor=white)
-
-**Imaging & EM Tools**
-
-![ImageJ](https://img.shields.io/badge/FIJI%2FImageJ-B22222?style=for-the-badge&logoColor=white)
-![WebKnossos](https://img.shields.io/badge/WebKnossos-8B0000?style=for-the-badge&logoColor=white)
-
-**Infrastructure**
-
-![Git](https://img.shields.io/badge/Git-A00000?style=for-the-badge&logo=git&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-B22222?style=for-the-badge&logo=sqlite&logoColor=white)
-![REST API](https://img.shields.io/badge/REST%20APIs-8B0000?style=for-the-badge&logo=fastapi&logoColor=white)
-
-</div>
-
-<br/>
+1. **STL mesh export** — Reconstructed cell meshes exported from WebKnossos in STL format
+2. **3D morphometric extraction** — Volume, surface area, lateral spread, IPL depth, convex hull volume, and shape indices computed per cell
+3. **IPL stratification normalisation** — IPL depth normalised to 0–100% range using 2nd–98th percentile z-axis calibration per dataset
+4. **Quality control** — 37 cells excluded based on volume and IPL depth criteria (see `exclusions_log.csv`)
+5. **Statistical testing** — Mann-Whitney U tests with Cohen's *d* effect sizes for all pairwise comparisons
+6. **Comparisons performed:**
+   - S2 vs S4 (collapsed across region)
+   - Dorsal vs Ventral (collapsed across cell type)
+   - Dorsal S4 vs Ventral S4 (primary comparison of interest)
 
 ---
 
-## 📂 Projects
+## Key Results
 
-<table>
-<tr>
-<td width="50%" valign="top">
+| Comparison | Variable | Cohen's *d* | *p*-value |
+|---|---|---|---|
+| Dorsal S4 vs Ventral S4 | Terminal width | −3.12 | < 0.001 |
+| Dorsal S4 vs Ventral S4 | IPL depth | −4.63 | < 0.001 |
+| S2 vs S4 | Surface area | 0.92 | < 0.001 |
+| Inter-rater (VL vs KM) | All variables | < 0.10 | > 0.05 |
 
-### 🐟 Zebrafish Retinal Connectomics
-*Dissertation — Baden Lab, University of Sussex*
+Ventral S4 cells show significantly wider terminals than their dorsal counterparts (Cohen's *d* = −3.12, *p* < 0.001). This is consistent with the functional demands of the ventral retina, which samples the bright overhead visual field and is expected to favour increased photon catch and spatial summation. The large effect size for IPL depth (Cohen's *d* = −4.63) confirms that S4 stratification position differs substantially between dorsal and ventral regions, suggesting topographic functional specialisation at the level of individual bipolar cell subtypes.
 
-EM-based 3D morphometric analysis of monostratifying bipolar cells across dorsal and ventral retinal regions. Dual-annotator design. Key finding: **ventral S4 cells show significantly wider terminals** (Cohen's *d* = −3.12, *p* < .001), consistent with topographic functional specialisation.
-
-`Python` `SciPy` `Seaborn` `WebKnossos` `STL mesh`
-
-<table>
-<tr>
-  <td width="32%" align="center">
-    <img src="assets/S2 and S4 skeleotisations in Dorsal region.png"
-         alt="Skeletonisation reconstructions of dorsal S2 and S4 bipolar cells"
-         width="32%" />
-    <br/><em>Dorsal S2 and S4 skeletonisations</em>
-  </td>
-  <td width="32%" align="center">
-    <img src="assets/Dorsal render.png"
-         alt="Skeletonised reconstructions of dorsal S4 bipolar cells"
-         width="32%" />
-    <br/><em>Skeletonised dorsal S4 bipolar cells</em>
-  </td>
-  <td width="32%" align="center">
-    <img src="assets/S4 Ventral skeletonisations.png"
-         alt="Ventral S4 bipolar cell population reconstructions"
-         width="32%" />
-    <br/><em>Ventral S4 bipolar cell population</em>
-  </td>
-</tr>
-</table>
-
-</td>
-<td width="50%" valign="top">
-
-### 💊 FDA FAERS Adverse Event Analysis
-
-Pharmacovigilance pipeline on the FDA's spontaneous reporting database. Built SQLite from raw ASCII, applied Reporting Odds Ratios to show **SSRIs don't disproportionately signal suicidal ideation** — raw counts were misleading. The stats say what they say.
-
-`Python` `SQLite` `SQL` `SciPy` `Seaborn`
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### 🧠 Allen Brain Atlas Expression Pipeline
-
-Fully reproducible pipeline: REST API → ontology traversal → aggregation → statistical testing → visualisation. Recovers known neurotransmitter distributions programmatically. Honest about what it is — **replication with rigorous uncertainty quantification**, not novelty claims.
-
-`Python` `REST API` `Kruskal-Wallis` `Bootstrap CI` `Seaborn`
-
-</td>
-<td width="50%" valign="top">
-
-### 🔭 What's Next
-
-Currently in my **3rd year**, actively working on my dissertation. One more year to go — graduating **Summer 2027**.
-
-Open to **graduate R&D and data science roles** in pharma, biotech, and computational biology — particularly roles involving quantitative analysis, imaging data, or scientific software.
-
-If you're hiring or want to collaborate: reach out below.
-
-</td>
-</tr>
-</table>
-
-<br/>
+<table><tr>
+<td width="33%" align="center">
+<img src="assets/S2 and S4 skeleotisations in Dorsal region.png" width="100%"/>
+<br/><em>Dorsal S2 and S4 skeletonisations</em></td>
+<td width="33%" align="center">
+<img src="assets/Dorsal render.png" width="100%"/>
+<br/><em>Skeletonised dorsal S4 bipolar cells</em></td>
+<td width="33%" align="center">
+<img src="assets/S4 Ventral skeletonisations.png" width="100%"/>
+<br/><em>Ventral S4 bipolar cell population</em></td>
+</tr></table>
 
 ---
 
-## 📍 Currently
+## Figures
 
-- 🔬 **3rd year** — actively reconstructing 3D morphology of bipolar cell subtypes in the Baden Lab
-- 📝 Dissertation in progress — regional morphological specialisation of bipolar cells in larval zebrafish retina
-- 🎓 Graduating **Summer 2027** — open to graduate R&D / data science roles *(pharma, biotech, computational biology)*
-- 🌍 Based in UK — open to London and beyond
-
-<br/>
+| Figure | File | Description |
+|---|---|---|
+| Figure 1 | `figure1_stratification.png` | IPL depth distributions by cell type and region |
+| Figure 2 | `figure2_regional_comparison.png` | Dorsal vs ventral morphometric comparison |
+| Figure 3 | `figure3_interrater.png` | Inter-rater reliability: VL vs KM |
+| Figure 4 | `figure4_shape_complexity.png` | Volume–surface area relationship |
+| Figure 5 | `figure5_effect_heatmap.png` | Cohen's *d* effect size heatmap across all comparisons |
 
 ---
 
-## 📬 Contact
+## Quickstart
 
-<div align="center">
+**Requirements:** Python 3.8+
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-8B0000?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/vanzlabitad/)
-[![Instagram](https://img.shields.io/badge/Instagram-A00000?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/vanz.labitad/)
-[![Email](https://img.shields.io/badge/Email-B22222?style=for-the-badge&logo=gmail&logoColor=white)](mailto:vanzlabitad23@gmail.com)
-[![GitHub](https://img.shields.io/badge/GitHub-8B0000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Vanz23-23)
+```bash
+pip install pandas numpy scipy matplotlib seaborn
+python analysis/morphometric_analysis.py
+```
 
-</div>
+The script reads from `data/morphometrics_clean.csv` by default and writes outputs to `figures/` and `data/`.
 
-<br/>
+---
 
-<div align="center">
-<sub>Powered by caffeine and Red Velvet b-sides.</sub>
-</div>
+## Data Access
 
-<div align="center">
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a0000,50:8B0000,100:0f0000&height=120&section=footer" width="100%"/>
-</div>
+Raw EM image stacks and STL mesh files are proprietary to the University of Sussex and are not included in this repository. This repository contains only derived morphometric measurements (CSV files) and the analysis code used to produce the reported results. Researchers wishing to access the raw data should contact the Baden Lab, University of Sussex.
+
+---
+
+## Limitations
+
+- Sample sizes per subgroup are modest, consistent with the labour-intensive nature of manual ssEM reconstruction
+- Analyses are restricted to larval zebrafish; generalisation to adult or other species requires further study
+- Morphometric extraction assumes mesh quality sufficient for accurate volume and surface area computation; cells failing QC thresholds were excluded
+- Region boundaries (dorsal/ventral) were operationally defined; the boundary is not a hard anatomical demarcation
+
+---
+
+## License
+
+Code is released under the MIT License. Derived data files are made available for academic use. Raw EM data remains the property of the University of Sussex.
