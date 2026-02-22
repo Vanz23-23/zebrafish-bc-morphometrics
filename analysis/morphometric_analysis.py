@@ -32,7 +32,7 @@ METRIC_LABELS = {
     "surface_area_um2": "Surface Area (um2)",
 }
 
-# Colorblind-friendly palette (Tol bright scheme)
+
 COLORS = {
     "S2": "#EE6677",   # rose — OFF-pathway
     "S4": "#4477AA",   # blue — ON-pathway
@@ -40,7 +40,7 @@ COLORS = {
     "Ventral": "#CCBB44",
 }
 
-# Publication-quality defaults
+
 plt.rcParams.update({
     "font.size": 11,
     "font.family": "sans-serif",
