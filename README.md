@@ -2,14 +2,14 @@
 
 **Author:** Vanz Labitad  
 **Institution:** University of Sussex, School of Life Sciences  
-**Degree:** MSci Neuroscience, 2026  
+**Degree:** MSci Neuroscience  
 **Supervisor:** Katarina Moravkova
 
 ---
 
-This repository contains the analysis code, derived morphometric data, and figures for my dissertation project investigating regional morphological differences between monostratifying bipolar cell subtypes (S2 and S4) across the dorsal and ventral retina of larval zebrafish (*Danio rerio*).
+This repository contains the analysis code, morphometric data, & figures for my dissertation project investigating regional morphological differences between monostratifying bipolar cell subtypes (S2 and S4) across the dorsal and ventral retina of larval zebrafish.
 
-Cells were manually reconstructed from serial-section electron microscopy (ssEM) data using WebKnossos. 3D morphometric features — including volume, surface area, lateral spread, IPL depth, convex hull, and shape indices — were extracted from STL mesh exports. Statistical comparisons use Mann-Whitney U tests and Cohen's *d* effect sizes throughout.
+Cells were manually reconstructed from serial-section electron microscopy data using WebKnossos. 3D morphometric features included the volume, surface area, lateral spread, IPL depth, convex hull, and shape indices these were extracted from STL mesh exports. Statistical comparisons use Mann-Whitney U tests and Cohen's *d* effect sizes throughout.
 
 <div align="center">
 <img src="assets/Ventral Vs Dorsal comparison.png"
@@ -82,7 +82,7 @@ Inter-rater agreement was assessed across all morphometric variables. Results co
 1. **STL mesh export** — Reconstructed cell meshes exported from WebKnossos in STL format
 2. **3D morphometric extraction** — Volume, surface area, lateral spread, IPL depth, convex hull volume, and shape indices computed per cell
 3. **IPL stratification normalisation** — IPL depth normalised to 0–100% range using 2nd–98th percentile z-axis calibration per dataset
-4. **Quality control** — 37 cells excluded based on volume and IPL depth criteria (see `exclusions_log.csv`)
+4. **Quality control** — 37 cells excluded based on volume and IPL depth criteria (see the `exclusions_log.csv`)
 5. **Statistical testing** — Mann-Whitney U tests with Cohen's *d* effect sizes for all pairwise comparisons
 6. **Comparisons performed:**
    - S2 vs S4 (collapsed across region)
@@ -108,7 +108,7 @@ Ventral S4 cells show significantly wider terminals than their dorsal counterpar
 <br/><em>Dorsal S2 and S4 skeletonisations</em></td>
 <td width="33%" align="center">
 <img src="assets/Dorsal render.png" width="100%"/>
-<br/><em>Skeletonised dorsal S4 bipolar cells</em></td>
+<br/><em>Segmented dorsal region bipolar cells</em></td>
 <td width="33%" align="center">
 <img src="assets/S4 Ventral skeletonisations.png" width="100%"/>
 <br/><em>Ventral S4 bipolar cell population</em></td>
@@ -143,19 +143,20 @@ The script reads from `data/morphometrics_clean.csv` by default and writes outpu
 
 ## Data Access
 
-Raw EM image stacks and STL mesh files are proprietary to the University of Sussex and are not included in this repository. This repository contains only derived morphometric measurements (CSV files) and the analysis code used to produce the reported results. Researchers wishing to access the raw data should contact the Baden Lab, University of Sussex.
+Raw EM image stacks and STL mesh files are property to the University of Sussex & Baden Lab and are not included in this repository. This repository contains only morphometric measurements (CSV files) and the analysis code used to produce the reported results. Researchers wishing to access the raw data should contact the Baden Lab, University of Sussex.
 
 ---
 
 ## Limitations
 
-- Sample sizes per subgroup are modest, consistent with the labour-intensive nature of manual ssEM reconstruction
-- Analyses are restricted to larval zebrafish; generalisation to adult or other species requires further study
+- Sample sizes per subgroup are modest.
+- Analyses are restricted to (6 days old)larval zebrafish; generalisation to adult or other species requires further study
 - Morphometric extraction assumes mesh quality sufficient for accurate volume and surface area computation; cells failing QC thresholds were excluded
-- Region boundaries (dorsal/ventral) were operationally defined; the boundary is not a hard anatomical demarcation
+- Region boundaries (dorsal/ventral) were predefined can vary between Zebrafish.
 
 ---
 
 ## License
 
-Code is released under the MIT License. Derived data files are made available for academic use. Raw EM data remains the property of the University of Sussex.
+Code is released under the MIT License. These data files are made available for academic use. **Raw EM data remains the property of the University of Sussex.**
+
