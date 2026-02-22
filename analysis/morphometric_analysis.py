@@ -9,6 +9,7 @@ Dissertation: Regional Morphological Specialisation of Monostratifying
               Bipolar Cells in the Larval Zebrafish Retina (2025)
 """
 
+import sys
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -20,8 +21,9 @@ from pathlib import Path
 # Configuration
 # ---------------------------------------------------------------------------
 
-DATA_PATH = Path("data/morphometrics_clean.csv")
-OUTPUT_DIR = Path("figures")
+_HERE = Path(__file__).parent.resolve()
+DATA_PATH = _HERE.parent / "data" / "morphometrics_clean.csv"
+OUTPUT_DIR = _HERE.parent / "figures"
 
 METRICS = ["lateral_spread_um", "ipl_depth_pct", "volume_um3", "surface_area_um2"]
 
@@ -40,35 +42,67 @@ COLORS = {
     "Ventral": "#CCBB44",
 }
 
+# Significance threshold — uncorrected; see run_comparisons docstring for justification.
+ALPHA = 0.05
 
-plt.rcParams.update({
-    "font.size": 11,
-    "font.family": "sans-serif",
-    "font.sans-serif": ["Arial", "DejaVu Sans", "Helvetica"],
-    "axes.labelsize": 12,
-    "axes.titlesize": 13,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
-    "figure.dpi": 300,
-    "savefig.dpi": 300,
-    "savefig.bbox": "tight",
-    "axes.spines.top": False,
-    "axes.spines.right": False,
-})
+# Minimum group size for statistical tests
+MIN_N = 3
+
+# Required columns in the input dataset
+REQUIRED_COLUMNS = {"cell_type", "region", "annotator"} | set(METRICS)
+
+
+def configure_plot_style() -> None:
+    """Apply publication-quality matplotlib defaults. Call from main()."""
+    plt.rcParams.update({
+        "font.size": 11,
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "DejaVu Sans", "Helvetica"],
+        "axes.labelsize": 12,
+        "axes.titlesize": 13,
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
+        "figure.dpi": 300,
+        "savefig.dpi": 300,
+        "savefig.bbox": "tight",
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+    })
+
+
+def log_package_versions() -> None:
+    """Print Python and package versions for reproducibility."""
+    import scipy
+    print(f"\nPython: {sys.version}")
+    print(f"numpy: {np.__version__}, pandas: {pd.__version__}, "
+          f"scipy: {scipy.__version__}, matplotlib: {plt.matplotlib.__version__}, "
+          f"seaborn: {sns.__version__}")
 
 
 # ---------------------------------------------------------------------------
 # Core functions
 # ---------------------------------------------------------------------------
 
-def load_data(path):
+def load_data(path: Path) -> pd.DataFrame:
     """Load the cleaned morphometrics dataset."""
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Data file not found: {path.resolve()}\n"
+            "Run this script from the project root, or check DATA_PATH."
+        )
     df = pd.read_csv(path)
-    print(f"Loaded {len(df)} cells from {path}")
+    print(f"Loaded {len(df)} cells from {path.resolve()}")
     return df
 
 
-def print_dataset_summary(df):
+def validate_data(df: pd.DataFrame) -> None:
+    """Check that all required columns are present in the dataset."""
+    missing = REQUIRED_COLUMNS - set(df.columns)
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+
+
+def print_dataset_summary(df: pd.DataFrame) -> None:
     """Print cell counts per annotator x region x cell_type."""
     print("\n=== DATASET SUMMARY ===")
     summary = (
@@ -84,14 +118,24 @@ def print_dataset_summary(df):
     print(f"  Ventral: {len(df[df['region'] == 'Ventral'])}")
 
 
-def cohens_d(a, b):
+def cohens_d(a: np.ndarray, b: np.ndarray) -> float:
     """
     Compute Cohen's d using pooled standard deviation.
 
     d = (mean_a - mean_b) / SD_pooled
     where SD_pooled = sqrt(((n_a-1)*s_a^2 + (n_b-1)*s_b^2) / (n_a+n_b-2))
+
+    NOTE: Cohen's d is a parametric effect size and is technically mismatched with
+    Mann-Whitney U (a non-parametric test). We report it here as a *descriptive*
+    standardised mean difference because: (1) it is widely understood and directly
+    comparable across metrics, (2) our sample sizes (~20-60 per group) are large
+    enough that the mean/SD are meaningful summaries even when normality is violated,
+    and (3) rank-biserial r is reported alongside for non-parametric completeness.
+    Positive values indicate group a > group b.
     """
     na, nb = len(a), len(b)
+    if na < 2 or nb < 2:
+        return np.nan  # Cohen's d undefined for n < 2
     sa, sb = np.std(a, ddof=1), np.std(b, ddof=1)
     pooled_sd = np.sqrt(((na - 1) * sa**2 + (nb - 1) * sb**2) / (na + nb - 2))
     if pooled_sd == 0:
@@ -99,12 +143,27 @@ def cohens_d(a, b):
     return (np.mean(a) - np.mean(b)) / pooled_sd
 
 
-def run_comparisons(df):
+def rank_biserial_r(u_stat: float, n_a: int, n_b: int) -> float:
     """
-    Run Mann-Whitney U tests and compute Cohen's d for three comparison sets:
+    Rank-biserial correlation: non-parametric effect size for Mann-Whitney U.
+    r = 1 - (2U / (n_a * n_b)), bounded [-1, 1].
+    """
+    if n_a * n_b == 0:
+        return np.nan
+    return 1 - (2 * u_stat) / (n_a * n_b)
+
+
+def run_comparisons(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Run Mann-Whitney U tests and compute effect sizes for three comparison sets:
       1. S2 vs S4 (all cells) — validates cell type classification
       2. Dorsal vs Ventral (all cells) — broad regional differences
       3. Dorsal S4 vs Ventral S4 — key regional comparison for ON-pathway
+
+    NOTE on multiple comparisons: 3 comparisons × 4 metrics = 12 tests.
+    No FDR/Bonferroni correction is applied because these are pre-specified,
+    hypothesis-driven comparisons (not exploratory screening). The 'significant'
+    column uses uncorrected p < ALPHA. Document this in the methods section.
     """
     comparisons = [
         ("S2 vs S4", df[df["cell_type"] == "S2"], df[df["cell_type"] == "S4"]),
@@ -122,8 +181,23 @@ def run_comparisons(df):
             a = group_a[metric].dropna().values
             b = group_b[metric].dropna().values
 
+            # Guard against empty or too-small groups
+            if len(a) < MIN_N or len(b) < MIN_N:
+                print(f"WARNING: Skipping {label} / {metric} — "
+                      f"insufficient n ({len(a)}, {len(b)})")
+                rows.append({
+                    "comparison": label, "metric": metric,
+                    "n_a": len(a), "n_b": len(b),
+                    "mean_a": np.nan, "mean_b": np.nan,
+                    "U_statistic": np.nan, "p_value": np.nan,
+                    "cohens_d": np.nan, "rank_biserial_r": np.nan,
+                    "significant": False,
+                })
+                continue
+
             stat, p = stats.mannwhitneyu(a, b, alternative="two-sided")
             d = cohens_d(a, b)
+            r = rank_biserial_r(stat, len(a), len(b))
 
             rows.append({
                 "comparison": label,
@@ -135,29 +209,29 @@ def run_comparisons(df):
                 "U_statistic": stat,
                 "p_value": p,
                 "cohens_d": d,
-                "significant": p < 0.05,
+                "rank_biserial_r": r,
+                "significant": p < ALPHA,
             })
 
-    results = pd.DataFrame(rows)
-    return results
+    return pd.DataFrame(rows)
 
 
-def print_results(results):
+def print_results(results: pd.DataFrame) -> None:
     """Print statistical results in a clean tabular format."""
     print("\n=== STATISTICAL RESULTS ===")
     print(f"{'Comparison':<28} {'Metric':<22} {'n_a':>4} {'n_b':>4} "
-          f"{'U':>10} {'p':>12} {'d':>8} {'Sig':>5}")
-    print("-" * 100)
+          f"{'U':>10} {'p':>12} {'d':>8} {'r':>8} {'Sig':>5}")
+    print("-" * 108)
 
     for _, row in results.iterrows():
         sig_marker = "***" if row["p_value"] < 0.001 else (
             "**" if row["p_value"] < 0.01 else (
-            "*" if row["p_value"] < 0.05 else "ns"))
+            "*" if row["p_value"] < ALPHA else "ns"))
         print(
             f"{row['comparison']:<28} {row['metric']:<22} "
             f"{row['n_a']:>4} {row['n_b']:>4} "
             f"{row['U_statistic']:>10.1f} {row['p_value']:>12.2e} "
-            f"{row['cohens_d']:>8.3f} {sig_marker:>5}"
+            f"{row['cohens_d']:>8.3f} {row['rank_biserial_r']:>8.3f} {sig_marker:>5}"
         )
 
 
@@ -165,7 +239,7 @@ def print_results(results):
 # Figures
 # ---------------------------------------------------------------------------
 
-def plot_ipl_depth_by_type(df):
+def plot_ipl_depth_by_type(df: pd.DataFrame) -> None:
     """
     Figure: IPL depth distribution by cell type (S2 vs S4).
 
@@ -174,10 +248,12 @@ def plot_ipl_depth_by_type(df):
     """
     fig, ax = plt.subplots(figsize=(6, 5))
 
+    vals_s2 = df[df["cell_type"] == "S2"]["ipl_depth_pct"].dropna()
+    vals_s4 = df[df["cell_type"] == "S4"]["ipl_depth_pct"].dropna()
+
     # Violin plot with embedded box
     parts = ax.violinplot(
-        [df[df["cell_type"] == "S2"]["ipl_depth_pct"].dropna(),
-         df[df["cell_type"] == "S4"]["ipl_depth_pct"].dropna()],
+        [vals_s2, vals_s4],
         positions=[0, 1],
         showmeans=False, showmedians=False, showextrema=False,
     )
@@ -188,8 +264,7 @@ def plot_ipl_depth_by_type(df):
 
     # Overlay box plots
     bp = ax.boxplot(
-        [df[df["cell_type"] == "S2"]["ipl_depth_pct"].dropna(),
-         df[df["cell_type"] == "S4"]["ipl_depth_pct"].dropna()],
+        [vals_s2, vals_s4],
         positions=[0, 1],
         widths=0.15, patch_artist=True,
         showfliers=False, zorder=3,
@@ -204,15 +279,15 @@ def plot_ipl_depth_by_type(df):
             line.set_color("black")
             line.set_linewidth(1.2)
 
-    # Overlay individual points
-    for i, ct in enumerate(["S2", "S4"]):
-        vals = df[df["cell_type"] == ct]["ipl_depth_pct"].dropna()
-        jitter = np.random.default_rng(42).uniform(-0.08, 0.08, len(vals))
+    # Overlay individual points (single RNG instance, advances across groups)
+    rng = np.random.default_rng(42)
+    for i, (ct, vals) in enumerate([("S2", vals_s2), ("S4", vals_s4)]):
+        jitter = rng.uniform(-0.08, 0.08, len(vals))
         ax.scatter(i + jitter, vals, color=COLORS[ct], alpha=0.5, s=15,
                    edgecolors="white", linewidth=0.3, zorder=4)
 
-    n_s2 = len(df[df["cell_type"] == "S2"])
-    n_s4 = len(df[df["cell_type"] == "S4"])
+    # n computed from dropna'd series (matches plotted data)
+    n_s2, n_s4 = len(vals_s2), len(vals_s4)
     ax.set_xticks([0, 1])
     ax.set_xticklabels([f"S2 (OFF)\nn={n_s2}", f"S4 (ON)\nn={n_s4}"],
                        fontweight="bold")
@@ -231,7 +306,7 @@ def plot_ipl_depth_by_type(df):
     print(f"Saved: {out}")
 
 
-def plot_lateral_spread_regional(df, results):
+def plot_lateral_spread_regional(df: pd.DataFrame, results: pd.DataFrame) -> None:
     """
     Figure: Lateral spread of Dorsal S4 vs Ventral S4 bipolar cells.
 
@@ -242,18 +317,24 @@ def plot_lateral_spread_regional(df, results):
     dorsal_s4 = df[(df["region"] == "Dorsal") & (df["cell_type"] == "S4")]
     ventral_s4 = df[(df["region"] == "Ventral") & (df["cell_type"] == "S4")]
 
-    # Get stats for annotation
-    row = results[
+    # Get stats for annotation (guard against missing comparison)
+    stat_rows = results[
         (results["comparison"] == "Dorsal S4 vs Ventral S4")
         & (results["metric"] == "lateral_spread_um")
-    ].iloc[0]
+    ]
+    if stat_rows.empty:
+        print("WARNING: No stats found for Dorsal S4 vs Ventral S4 lateral_spread_um — skipping figure")
+        return
+    row = stat_rows.iloc[0]
 
     fig, ax = plt.subplots(figsize=(5.5, 5))
 
+    d_vals = dorsal_s4["lateral_spread_um"].dropna()
+    v_vals = ventral_s4["lateral_spread_um"].dropna()
+
     # Box plot
     bp = ax.boxplot(
-        [dorsal_s4["lateral_spread_um"].dropna(),
-         ventral_s4["lateral_spread_um"].dropna()],
+        [d_vals, v_vals],
         positions=[0, 1],
         widths=0.4, patch_artist=True,
         showfliers=False, zorder=2,
@@ -267,18 +348,18 @@ def plot_lateral_spread_regional(df, results):
             line.set_color("black")
             line.set_linewidth(1.2)
 
-    # Strip plot overlay
-    for i, (subset, color) in enumerate([
-        (dorsal_s4, COLORS["Dorsal"]),
-        (ventral_s4, COLORS["Ventral"]),
+    # Strip plot overlay (single RNG, advances across groups)
+    rng = np.random.default_rng(42)
+    for i, (vals, color) in enumerate([
+        (d_vals, COLORS["Dorsal"]),
+        (v_vals, COLORS["Ventral"]),
     ]):
-        vals = subset["lateral_spread_um"].dropna()
-        jitter = np.random.default_rng(42).uniform(-0.12, 0.12, len(vals))
+        jitter = rng.uniform(-0.12, 0.12, len(vals))
         ax.scatter(i + jitter, vals, color=color, alpha=0.6, s=20,
                    edgecolors="white", linewidth=0.3, zorder=3)
 
-    n_d = len(dorsal_s4)
-    n_v = len(ventral_s4)
+    # n computed from dropna'd series
+    n_d, n_v = len(d_vals), len(v_vals)
     ax.set_xticks([0, 1])
     ax.set_xticklabels([f"Dorsal S4\nn={n_d}", f"Ventral S4\nn={n_v}"],
                        fontweight="bold")
@@ -286,8 +367,7 @@ def plot_lateral_spread_regional(df, results):
     ax.set_title("Terminal Arbor Width: Dorsal vs Ventral S4")
 
     # Significance annotation
-    y_max = max(dorsal_s4["lateral_spread_um"].max(),
-                ventral_s4["lateral_spread_um"].max())
+    y_max = max(d_vals.max(), v_vals.max())
     bar_y = y_max * 1.05
     ax.plot([0, 0, 1, 1], [bar_y, bar_y * 1.02, bar_y * 1.02, bar_y],
             color="black", linewidth=1.2)
@@ -304,7 +384,7 @@ def plot_lateral_spread_regional(df, results):
     print(f"Saved: {out}")
 
 
-def plot_effect_heatmap(results):
+def plot_effect_heatmap(results: pd.DataFrame) -> None:
     """
     Figure: Heatmap of Cohen's d effect sizes across all comparisons and metrics.
 
@@ -359,15 +439,24 @@ def plot_effect_heatmap(results):
 # Main
 # ---------------------------------------------------------------------------
 
-def main():
+def main() -> None:
     """Run the full analysis: load data, compute stats, generate figures."""
+    configure_plot_style()
+    log_package_versions()
+
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     df = load_data(DATA_PATH)
+    validate_data(df)
     print_dataset_summary(df)
 
     results = run_comparisons(df)
     print_results(results)
+
+    # Save statistical results to CSV for reproducibility
+    results_path = OUTPUT_DIR / "stats_results.csv"
+    results.to_csv(results_path, index=False)
+    print(f"Saved: {results_path}")
 
     plot_ipl_depth_by_type(df)
     plot_lateral_spread_regional(df, results)
