@@ -23,7 +23,7 @@ from datetime import datetime
 import sys
 import importlib.metadata
 
-# Enhanced color scheme for publication-quality visualization
+# color scheme
 COLORS = {
     'S2': '#E74C3C',           # red — OFF pathway
     'S2_light': '#F1948A',     # light red
@@ -51,7 +51,7 @@ ALPHA = 0.05
 
 
 def configure_plot_style() -> None:
-    """Apply publication-quality matplotlib and seaborn defaults. Call from main()."""
+    """Apply quality matplotlib and seaborn defaults. Call from main()."""
     plt.rcParams.update({
         'font.size': 11,
         'font.family': 'sans-serif',
@@ -403,7 +403,7 @@ def run_comparison(group_a: pd.DataFrame, group_b: pd.DataFrame,
     if len(a) < 3 or len(b) < 3:
         return None
 
-    # Normality test (Shapiro-Wilk)
+    # Shapiro-Wilk
     norm_a = stats.shapiro(a).pvalue > 0.05 if len(a) >= 3 else False
     norm_b = stats.shapiro(b).pvalue > 0.05 if len(b) >= 3 else False
 
@@ -461,7 +461,7 @@ def run_all_comparisons(df: pd.DataFrame) -> pd.DataFrame:
     NOTE on multiple comparisons: 8 metrics × 4 comparison families = 32 tests.
     No FDR/Bonferroni correction is applied here because these are pre-specified,
     hypothesis-driven comparisons (not exploratory screening). The 'significant'
-    column uses uncorrected p < 0.05. This decision must be stated explicitly in
+    column uses uncorrected p < 0.05. Note to self - this decision must be stated explicitly in
     the dissertation methods section.
     """
     metrics = ['volume_um3', 'surface_area_um2', 'lateral_spread_um', 'z_span_um',
