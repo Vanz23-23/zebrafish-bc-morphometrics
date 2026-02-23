@@ -6,7 +6,7 @@ morphometric data and generates statistical comparisons and figures.
 
 Author: Vanz Labitad, University of Sussex
 Dissertation: Regional Morphological Specialisation of Monostratifying
-              Bipolar Cells in the Larval Zebrafish Retina (2025)
+              Bipolar Cells in the Larval Zebrafish Retina (2025-2026)
 """
 
 import sys
@@ -163,7 +163,7 @@ def run_comparisons(df: pd.DataFrame) -> pd.DataFrame:
     NOTE on multiple comparisons: 3 comparisons × 4 metrics = 12 tests.
     No FDR/Bonferroni correction is applied because these are pre-specified,
     hypothesis-driven comparisons (not exploratory screening). The 'significant'
-    column uses uncorrected p < ALPHA. Document this in the methods section.
+    column uses uncorrected p < ALPHA. Document this in the methods section!
     """
     comparisons = [
         ("S2 vs S4", df[df["cell_type"] == "S2"], df[df["cell_type"] == "S4"]),
@@ -453,7 +453,7 @@ def main() -> None:
     results = run_comparisons(df)
     print_results(results)
 
-    # Save statistical results to CSV for reproducibility
+    # Save statistical results to CSV/excel
     results_path = OUTPUT_DIR / "stats_results.csv"
     results.to_csv(results_path, index=False)
     print(f"Saved: {results_path}")
