@@ -36,9 +36,9 @@
 
 ## 🤔 Wait, what is this project even about?
 
-Imagine you're a tiny baby fish — only **6 days old**, so small you could sit on the tip of a pencil. Your eyes are basically see-through, which means scientists can look right inside them!
+Imagine you're a tiny baby fish only **6 days old**, so small you could sit on the tip of a pencil. Your eyes are basically see-through, which means scientists can look right inside them!
 
-Inside the eye, there are tiny cells called **bipolar cells**. Think of them like **postmen** 📬 — their job is to pick up messages from the cells that detect light, and deliver them to the brain. Without them, the fish's brain would never know what the eyes are seeing!
+Inside the eye, there are tiny cells called **bipolar cells**. Think of them like **postmen** 📬 — their job is to pick up messages from the cells that detect light, and deliver them to the brain. Without them, the fish's brain would never know what the eyes are seeing.
 
 There are different types of these postmen:
 - **S2 cells** — deliver "the light went away!" messages (OFF-pathway) 🌑
@@ -91,7 +91,7 @@ flowchart LR
 
 <br/>
 
-## 🎯 So... what did I find?
+## 🎯 What did I find?
 
 <div align="center">
 
@@ -150,13 +150,13 @@ It's like the difference between a **massive pair of sunglasses** (for the brigh
 
 <br/>
 
-## 📈 The Pretty Pictures (a.k.a. Figures)
+## 📈 The Pretty Pictures (Figures)
 
 <table>
 <tr>
 <td width="50%" align="center">
 <img src="figures/figure1_stratification.png" width="100%"/>
-<br/><sub><b>Figure 1</b> — Each dot is one cell. Red = S2, Blue = S4.<br/>The different cell types sit at different depths — exactly as expected! ✅</sub>
+<br/><sub><b>Figure 1</b> — Each dot is one cell. Red = S2, Blue = S4.<br/>The different cell types sit at different depths — exactly as expected! </sub>
 </td>
 <td width="50%" align="center">
 <img src="figures/figure2_regional_comparison.png" width="100%"/>
@@ -178,7 +178,7 @@ It's like the difference between a **massive pair of sunglasses** (for the brigh
 <div align="center">
 <br/>
 <img src="figures/figure3_interrater.png" width="70%"/>
-<br/><sub><b>Figure 3</b> — Me vs my supervisor's tracings. If we agreed perfectly,<br/>every dot would be on the dashed line. They're SUPER close = my data is trustworthy! ✅</sub>
+<br/><sub><b>Figure 3</b> — Me vs my supervisor's tracings. If we agreed perfectly,<br/>every dot would be on the dashed line. They're  close. </sub>
 </div>
 
 <br/>
@@ -211,7 +211,7 @@ It's like the difference between a **massive pair of sunglasses** (for the brigh
 zebrafish-bc-morphometrics/
 │
 ├── 📄 README.md                        ← The technical documentation
-├── 📄 PROJECT_OVERVIEW.md              ← You are here! 👋
+├── 📄 PROJECT_OVERVIEW.md              ← You are here! 
 │
 ├── 🐍 morphometrics_pipeline.py        ← The big one — 1,339 lines of Python
 │                                          that does everything from reading 3D
@@ -269,7 +269,7 @@ zebrafish-bc-morphometrics/
 <td align="center" width="20%">
 <h3>🧠</h3>
 <b>Neuroscience</b><br/>
-<sub>Applied domain knowledge of retinal circuitry, IPL stratification, and electron microscopy methods</sub>
+<sub>Applied knowledge of retinal circuitry, IPL stratification, and electron microscopy methods</sub>
 </td>
 </tr>
 </table>
