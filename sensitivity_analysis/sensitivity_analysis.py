@@ -27,12 +27,16 @@ OUTPUT_DIR = Path(__file__).parent
 
 COLORS = {"Dorsal": "#228833", "Ventral": "#CCBB44"}
 
-# Significance threshold — uncorrected (two independent dataset comparisons).
+# Significance threshold — uncorrected. The sensitivity analysis performs only
+# 2 tests (clean vs raw for the same metric), so the multiple comparisons burden
+# is minimal. No correction is applied; both p-values are reported alongside
+# effect sizes for transparent comparison.
 ALPHA = 0.05
 
-# Effect size retention threshold: finding considered "held" if raw d >= this
-# fraction of clean d. Threshold is conservative but arbitrary; no established
-# standard exists for this type of sensitivity comparison. Document in methods.
+# Effect size retention threshold: finding considered "held" if raw |d| >= this
+# fraction of clean |d|. The 0.8 threshold is conservative but arbitrary; no
+# established standard exists for this type of sensitivity comparison. This
+# threshold and its rationale must be stated in the dissertation methods section.
 EFFECT_RETENTION_THRESHOLD = 0.8
 
 

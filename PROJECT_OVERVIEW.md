@@ -2,9 +2,9 @@
 
 <!-- HERO SECTION -->
 
-# 🧬 Zebrafish Retinal Bipolar Cell Morphometrics
+# 🐟 I Studied the Eyeballs of Tiny See-Through Fish
 
-### 3D Reconstruction · Quantitative Analysis · Computational Neuroscience
+### ...and found out that different parts of the eye grow different-shaped brain cells
 
 <br/>
 
@@ -14,7 +14,7 @@
 
 <br/>
 
-<sub>3D electron microscopy reconstructions of retinal bipolar cells — dorsal (left) vs ventral (right) regions</sub>
+<sub>These are 3D models of actual nerve cells from inside a baby zebrafish's eye — built from thousands of microscope images 🔬</sub>
 
 <br/><br/>
 
@@ -34,55 +34,21 @@
 
 <br/>
 
-## 🔬 The Problem
+## 🤔 Wait, what is this project even about?
 
-> **How does the shape of individual neurons adapt to the visual demands of different parts of the eye?**
+Imagine you're a tiny baby fish — only **6 days old**, so small you could sit on the tip of a pencil. Your eyes are basically see-through, which means scientists can look right inside them!
 
-The zebrafish retina contains specialised nerve cells called **bipolar cells** that relay visual information from photoreceptors to the brain. Different regions of the eye face dramatically different visual environments — the **ventral retina** looks upward at the bright sky, while the **dorsal retina** looks downward at darker terrain.
+Inside the eye, there are tiny cells called **bipolar cells**. Think of them like **postmen** 📬 — their job is to pick up messages from the cells that detect light, and deliver them to the brain. Without them, the fish's brain would never know what the eyes are seeing!
 
-This project investigates whether these environmental pressures produce **measurable morphological differences** at the level of individual cell subtypes.
+There are different types of these postmen:
+- **S2 cells** — deliver "the light went away!" messages (OFF-pathway) 🌑
+- **S4 cells** — deliver "light is here!" messages (ON-pathway) ☀️
 
-<br/>
+And there are different parts of the eye:
+- **Dorsal** (top of the eye) — looks DOWN at the ground 👇
+- **Ventral** (bottom of the eye) — looks UP at the bright sky 👆
 
----
-
-<br/>
-
-## 🛠️ What I Built
-
-<table>
-<tr>
-<td width="50%">
-
-### End-to-End Analysis Pipeline
-
-A **1,300+ line Python pipeline** that takes raw 3D cell reconstructions and produces publication-quality statistical analysis and figures — fully automated and reproducible.
-
-**Pipeline stages:**
-- 🔹 Binary STL mesh parsing (custom parser)
-- 🔹 8 morphometric feature extraction (volume, surface area, lateral spread, IPL depth, convex hull, shape indices)
-- 🔹 Automated IPL depth normalisation with z-axis correction
-- 🔹 Statistical QC filtering (±3 SD, depth validation)
-- 🔹 Mann-Whitney U tests with Cohen's *d* effect sizes
-- 🔹 5 publication-quality figure generators
-
-</td>
-<td width="50%">
-
-### Technical Highlights
-
-| Skill | Application |
-|---|---|
-| **3D Geometry** | Signed tetrahedron volume, convex hull computation, mesh surface area |
-| **Statistics** | Non-parametric tests, effect sizes (Cohen's *d*, rank-biserial *r*) |
-| **Data Engineering** | Automated QC pipeline, reproducible CSV outputs |
-| **Visualisation** | Violin + swarm plots, heatmaps, regression with CI bands |
-| **Scientific Rigour** | Dual-annotator validation, sensitivity analysis, documented limitations |
-| **Domain Knowledge** | Retinal neuroscience, EM reconstruction, IPL stratification |
-
-</td>
-</tr>
-</table>
+> **The big question:** Do the postmen in the "looking up at the sky" part of the eye look different from the ones in the "looking down at the ground" part? And if so, why? 🤷
 
 <br/>
 
@@ -90,28 +56,74 @@ A **1,300+ line Python pipeline** that takes raw 3D cell reconstructions and pro
 
 <br/>
 
-## 📊 Key Results at a Glance
+## � How did I actually do this?
 
 <div align="center">
 
-```
-                    ┌──────────────────────────────────────────────────┐
-                    │         DORSAL S4  vs  VENTRAL S4               │
-                    │                                                  │
-                    │   Terminal Width    d = -3.12 ***   p < 0.001    │
-                    │   IPL Depth        d = -4.63 ***   p < 0.001    │
-                    │   Aspect Ratio     d =  2.35 ***   p < 0.001    │
-                    │                                                  │
-                    │   *** = highly significant (p < 0.001)           │
-                    │   Cohen's d > 0.8 = large effect                 │
-                    └──────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    A["🔬 Super-powerful\nmicroscope slices the\nzebrafish eye paper-thin"] --> B["✏️ I traced around\neach cell by hand\n(like colouring in!)"]
+    B --> C["📦 Computer stitches\nthe tracings into\n3D shapes"]
+    C --> D["📐 My code measures\neach 3D shape\nautomatically"]
+    D --> E["🧹 Remove any\ndodgy-looking\ncells (37 removed)"]
+    E --> F["� Compare the\ngroups using\nstatistics"]
+    F --> G["� Make graphs\nthat tell\nthe story"]
 ```
 
 </div>
 
 <br/>
 
-> **Key Finding:** Ventral S4 bipolar cells have **3× wider terminal arbors** than their dorsal counterparts (*d* = −3.12), consistent with functional adaptation to bright overhead illumination. Inter-rater reliability confirmed all *d* < 0.10 — the measurements are robust.
+**Here's the step-by-step:**
+
+| Step | What happened | In kid terms |
+|---|---|---|
+| � **Microscopy** | Serial-section electron microscopy at University of Sussex | We used a microscope so powerful it can see things a MILLION times smaller than your eye can see, and cut the eye into super-thin slices — like slicing bread paper-thin |
+| ✏️ **Tracing** | 222 cells manually annotated in WebKnossos | I went through every single slice and carefully traced around each cell by hand — imagine colouring inside the lines, but on hundreds of pages |
+| 🤝 **Double-checking** | Two people traced the same cells independently | My supervisor also traced the cells without seeing my work — like two people separately counting sweets in a jar to make sure they get the same number |
+| 📐 **Measuring** | 1,300+ line Python pipeline extracts 8 measurements per cell | My code reads each 3D cell and automatically measures its size, shape, width, depth, and more |
+| 🧹 **Cleaning** | 37 cells removed (too big, too small, or in weird places) | Some cells looked dodgy — too weirdly-shaped or in impossible locations — so we threw them out to keep the data clean |
+| 📊 **Statistics** | Mann-Whitney U tests + Cohen's *d* effect sizes | The maths that tells us "yes, these groups ARE genuinely different — it's not just luck" |
+
+<br/>
+
+---
+
+<br/>
+
+## 🎯 So... what did I find?
+
+<div align="center">
+
+### The cells at the bottom of the eye (looking up at the sky ☀️) are MUCH wider than the cells at the top!
+
+</div>
+
+<br/>
+
+```
+🏆 THE HEADLINE RESULTS:
+
+   Ventral S4 cells have 3× WIDER terminals than Dorsal S4 cells
+   ├── Cohen's d = -3.12  (that's a MASSIVE difference)
+   └── p < 0.001          (99.9% sure it's not luck)
+
+   They also sit at completely different depths in the eye
+   ├── Cohen's d = -4.63  (this is an ENORMOUS difference)
+   └── p < 0.001
+
+   My tracing vs my supervisor's tracing?
+   ├── Cohen's d < 0.10   (virtually identical = great!)
+   └── p > 0.05           (no difference between us)
+```
+
+<br/>
+
+**But WHY are the bottom cells wider?** 🤔
+
+Think about it — the bottom of the eye looks UP at the sky. The sky is super bright! So the cells there have evolved to be **wider**, like having a **bigger satellite dish** 📡 to catch more light and cover more ground. The top of the eye looks down at the darker ground, so those cells can afford to be smaller and more precise.
+
+It's like the difference between a **massive pair of sunglasses** (for the bright sky part) and a pair of **tiny binoculars** (for the detailed ground-viewing part). Same eye, different tools for different jobs! 🕶️🔭
 
 <br/>
 
@@ -119,15 +131,15 @@ A **1,300+ line Python pipeline** that takes raw 3D cell reconstructions and pro
 <tr>
 <td width="33%" align="center">
 <img src="assets/S2 and S4 skeleotisations in Dorsal region.png" width="100%"/>
-<br/><sub><b>Dorsal Region</b> — S2 & S4 skeletonisations</sub>
+<br/><sub><b>Dorsal region cells</b> — smaller, narrower</sub>
 </td>
 <td width="33%" align="center">
 <img src="assets/Dorsal render.png" width="100%"/>
-<br/><sub><b>Segmented Cells</b> — 3D mesh renders</sub>
+<br/><sub><b>3D render</b> — each colour is a different cell</sub>
 </td>
 <td width="33%" align="center">
 <img src="assets/S4 Ventral skeletonisations.png" width="100%"/>
-<br/><sub><b>Ventral S4</b> — wider terminal spread</sub>
+<br/><sub><b>Ventral region cells</b> — notice how they spread wider!</sub>
 </td>
 </tr>
 </table>
@@ -138,34 +150,35 @@ A **1,300+ line Python pipeline** that takes raw 3D cell reconstructions and pro
 
 <br/>
 
-## 📈 Figures
+## 📈 The Pretty Pictures (a.k.a. Figures)
 
 <table>
 <tr>
 <td width="50%" align="center">
 <img src="figures/figure1_stratification.png" width="100%"/>
-<br/><sub><b>Figure 1</b> — IPL stratification confirms S2/S4 classification</sub>
+<br/><sub><b>Figure 1</b> — Each dot is one cell. Red = S2, Blue = S4.<br/>The different cell types sit at different depths — exactly as expected! ✅</sub>
 </td>
 <td width="50%" align="center">
 <img src="figures/figure2_regional_comparison.png" width="100%"/>
-<br/><sub><b>Figure 2</b> — Regional morphology comparison</sub>
+<br/><sub><b>Figure 2</b> — Comparing dorsal vs ventral — the boxes show the range,<br/>the dots are individual cells. Stars (***) mean "big deal, statistically!" </sub>
 </td>
 </tr>
 <tr>
 <td width="50%" align="center">
 <img src="figures/figure4_shape_complexity.png" width="100%"/>
-<br/><sub><b>Figure 4</b> — Volume vs surface area relationship</sub>
+<br/><sub><b>Figure 4</b> — Bigger cells = more surface area (makes sense!).<br/>The shaded bands show how confident we are in the trend line.</sub>
 </td>
 <td width="50%" align="center">
 <img src="figures/figure5_effect_heatmap.png" width="100%"/>
-<br/><sub><b>Figure 5</b> — Effect size heatmap across all comparisons</sub>
+<br/><sub><b>Figure 5</b> — The "cheat sheet" — darker colour = bigger difference.<br/>Stars tell you how confident we are. The Dorsal S4 vs Ventral S4 column is 🔥</sub>
 </td>
 </tr>
 </table>
 
 <div align="center">
+<br/>
 <img src="figures/figure3_interrater.png" width="70%"/>
-<br/><sub><b>Figure 3</b> — Inter-rater reliability: near-perfect agreement between annotators</sub>
+<br/><sub><b>Figure 3</b> — Me vs my supervisor's tracings. If we agreed perfectly,<br/>every dot would be on the dashed line. They're SUPER close = my data is trustworthy! ✅</sub>
 </div>
 
 <br/>
@@ -174,33 +187,17 @@ A **1,300+ line Python pipeline** that takes raw 3D cell reconstructions and pro
 
 <br/>
 
-## 🧪 Data & Methodology
+## � The Numbers Behind It All
 
-<div align="center">
+| What I compared | What I measured | How different? | Sure it's real? |
+|---|---|---|---|
+| Dorsal S4 vs Ventral S4 | How wide the cells spread | **d = −3.12** (HUGE) | ***p < 0.001*** ✅ |
+| Dorsal S4 vs Ventral S4 | How deep they sit in the eye | **d = −4.63** (MASSIVE) | ***p < 0.001*** ✅ |
+| Dorsal S4 vs Ventral S4 | Height-to-width ratio | **d = 2.35** (HUGE) | ***p < 0.001*** ✅ |
+| S2 vs S4 | Surface area | **d = 0.92** (Large) | ***p < 0.001*** ✅ |
+| Me vs Supervisor | Everything | **d < 0.10** (tiny = great!) | p > 0.05 (no diff) ✅ |
 
-```mermaid
-flowchart LR
-    A["🔬 Serial-Section EM\n(electron microscopy)"] --> B["✏️ Manual 3D Tracing\n(WebKnossos)"]
-    B --> C["📦 STL Mesh Export\n(222 cells)"]
-    C --> D["📐 Morphometric\nExtraction"]
-    D --> E["🧹 Quality Control\n(185 cells remain)"]
-    E --> F["📊 Statistical\nAnalysis"]
-    F --> G["📈 Publication\nFigures"]
-```
-
-</div>
-
-<br/>
-
-| Stage | Detail |
-|---|---|
-| **Source Data** | Serial-section electron microscopy (University of Sussex, Baden Lab) |
-| **Annotation** | 222 cells manually traced in WebKnossos by 2 independent annotators |
-| **QC Filtering** | 37 cells excluded (volume outliers > 3 SD, implausible IPL depths) |
-| **Final Dataset** | 185 cells · 24 features · 4 subgroups (S2/S4 × Dorsal/Ventral) |
-| **Statistics** | Mann-Whitney U, Cohen's *d*, rank-biserial *r* · 32 comparisons |
-| **Validation** | Dual-annotator inter-rater reliability (all *d* < 0.10, all *p* > 0.05) |
-| **Sensitivity** | QC-excluded vs full dataset comparison confirms findings hold |
+> **How to read this:** Cohen's *d* tells you how big the difference is. Anything over 0.8 is considered "large." My main finding has *d* = 3.12 and 4.63, which is absolutely enormous — these cell populations genuinely look different from each other.
 
 <br/>
 
@@ -208,32 +205,35 @@ flowchart LR
 
 <br/>
 
-## 🗂️ Repository Structure
+## 🗂️ What's in this repository?
 
 ```
 zebrafish-bc-morphometrics/
 │
-├── 📄 README.md                        ← Technical documentation
-├── 📄 PROJECT_OVERVIEW.md              ← You are here
+├── 📄 README.md                        ← The technical documentation
+├── 📄 PROJECT_OVERVIEW.md              ← You are here! 👋
 │
-├── 🐍 morphometrics_pipeline.py        ← Full pipeline (1,339 lines)
+├── 🐍 morphometrics_pipeline.py        ← The big one — 1,339 lines of Python
+│                                          that does everything from reading 3D
+│                                          files to generating all the figures
 │
 ├── 📂 analysis/
-│   └── morphometric_analysis.py        ← Standalone statistical analysis
+│   └── morphometric_analysis.py        ← A simpler standalone analysis script
 │
 ├── 📂 sensitivity_analysis/
-│   └── sensitivity_analysis.py         ← QC robustness check
+│   └── sensitivity_analysis.py         ← "Does the finding still hold if we
+│                                          DON'T remove the dodgy cells?" (yes!)
 │
-├── 📂 data/
-│   ├── morphometrics_clean.csv         ← 185 cells, 24 features (post-QC)
-│   ├── morphometrics_raw.csv           ← 222 cells, 23 features (pre-QC)
-│   ├── exclusions_log.csv              ← 37 excluded cells with reasons
-│   ├── statistical_results.csv         ← 32 Mann-Whitney U test results
-│   ├── descriptive_stats.csv           ← Summary statistics per group
-│   └── metadata_summary.csv            ← Cell counts per subgroup
+├── 📂 data/                            ← All the spreadsheets
+│   ├── morphometrics_clean.csv         ← 185 good cells, 24 measurements each
+│   ├── morphometrics_raw.csv           ← All 222 cells before cleaning
+│   ├── exclusions_log.csv              ← The 37 kicked-out cells & why
+│   ├── statistical_results.csv         ← All 32 statistical tests
+│   ├── descriptive_stats.csv           ← Averages, medians, ranges
+│   └── metadata_summary.csv            ← How many cells per group
 │
-├── 📂 figures/                         ← 5 publication-quality figures (PNG + SVG)
-└── 📂 assets/                          ← 3D reconstruction renders
+├── 📂 figures/                         ← The 5 publication-quality charts (PNG + SVG)
+└── 📂 assets/                          ← The cool 3D reconstruction images
 ```
 
 <br/>
@@ -242,34 +242,34 @@ zebrafish-bc-morphometrics/
 
 <br/>
 
-## 💡 Skills Demonstrated
+## 💡 Skills I Used (a.k.a. why this project is cool)
 
 <table>
 <tr>
 <td align="center" width="20%">
 <h3>🐍</h3>
 <b>Python</b><br/>
-<sub>1,300+ lines of production-quality scientific code with type hints, docstrings, and modular design</sub>
+<sub>1,300+ lines of clean, documented code that runs the entire analysis from start to finish</sub>
 </td>
 <td align="center" width="20%">
 <h3>📐</h3>
-<b>3D Computation</b><br/>
-<sub>Custom STL parser, signed tetrahedron volumes, convex hull analysis, mesh operations</sub>
+<b>3D Maths</b><br/>
+<sub>Built a custom 3D file reader, calculated volumes using tetrahedron maths, computed convex hulls</sub>
 </td>
 <td align="center" width="20%">
 <h3>📊</h3>
 <b>Statistics</b><br/>
-<sub>Non-parametric hypothesis testing, effect size estimation, multiple comparison awareness</sub>
+<sub>Used proper statistical tests to prove the differences are real, not random luck</sub>
 </td>
 <td align="center" width="20%">
 <h3>🎨</h3>
-<b>Data Viz</b><br/>
-<sub>Publication-quality figures with Matplotlib & Seaborn — violin plots, heatmaps, regression CI bands</sub>
+<b>Data Visualisation</b><br/>
+<sub>Created publication-quality figures using Matplotlib & Seaborn — violin plots, heatmaps, regressions</sub>
 </td>
 <td align="center" width="20%">
 <h3>🧠</h3>
 <b>Neuroscience</b><br/>
-<sub>Domain expertise in retinal circuitry, IPL stratification, and EM reconstruction methodology</sub>
+<sub>Applied domain knowledge of retinal circuitry, IPL stratification, and electron microscopy methods</sub>
 </td>
 </tr>
 </table>
@@ -280,20 +280,20 @@ zebrafish-bc-morphometrics/
 
 <br/>
 
-## ⚡ Quick Start
+## ⚡ Want to run it yourself?
 
 ```bash
-# Clone the repository
+# Grab the code
 git clone https://github.com/Vanz23-23/zebrafish-bc-morphometrics.git
 cd zebrafish-bc-morphometrics
 
-# Install dependencies
+# Install the stuff it needs
 pip install pandas numpy scipy matplotlib seaborn
 
-# Run the analysis (reads from data/, outputs to figures/)
+# Run the analysis
 python analysis/morphometric_analysis.py
 
-# Or regenerate all figures from the full pipeline
+# Or regenerate all the figures
 python morphometrics_pipeline.py --figures-only
 ```
 
@@ -305,7 +305,7 @@ python morphometrics_pipeline.py --figures-only
 
 <div align="center">
 
-## 👤 Author
+## 👤 Who made this?
 
 **Vanz Labitad**
 <br/>
@@ -317,6 +317,6 @@ Supervised by **Katarina Moravkova** · Baden Lab, School of Life Sciences
 
 ---
 
-<sub>Code released under MIT License · Data files for academic use · Raw EM data property of University of Sussex</sub>
+<sub>Code: MIT License · Data: academic use · Raw microscope images: property of University of Sussex</sub>
 
 </div>

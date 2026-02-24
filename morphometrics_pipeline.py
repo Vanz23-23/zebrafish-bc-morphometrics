@@ -23,7 +23,7 @@ from datetime import datetime
 import sys
 import importlib.metadata
 
-# color scheme
+# Enhanced color scheme for publication-quality visualization
 COLORS = {
     'S2': '#E74C3C',           # red — OFF pathway
     'S2_light': '#F1948A',     # light red
@@ -51,7 +51,7 @@ ALPHA = 0.05
 
 
 def configure_plot_style() -> None:
-    """Apply quality matplotlib and seaborn defaults. Call from main()."""
+    """Apply publication-quality matplotlib and seaborn defaults. Call from main()."""
     plt.rcParams.update({
         'font.size': 11,
         'font.family': 'sans-serif',
@@ -403,7 +403,7 @@ def run_comparison(group_a: pd.DataFrame, group_b: pd.DataFrame,
     if len(a) < 3 or len(b) < 3:
         return None
 
-    # Shapiro-Wilk
+    # Normality test (Shapiro-Wilk)
     norm_a = stats.shapiro(a).pvalue > 0.05 if len(a) >= 3 else False
     norm_b = stats.shapiro(b).pvalue > 0.05 if len(b) >= 3 else False
 
@@ -458,11 +458,21 @@ def run_all_comparisons(df: pd.DataFrame) -> pd.DataFrame:
     """
     Run all statistical comparisons.
 
-    NOTE on multiple comparisons: 8 metrics × 4 comparison families = 32 tests.
-    No FDR/Bonferroni correction is applied here because these are pre-specified,
-    hypothesis-driven comparisons (not exploratory screening). The 'significant'
-    column uses uncorrected p < 0.05. Note to self - this decision must be stated explicitly in
-    the dissertation methods section.
+    NOTE on multiple comparisons: 8 metrics × 4 comparison families = 32 tests
+    at α = 0.05. No family-wise correction (Bonferroni, Holm) or false discovery
+    rate control (Benjamini-Hochberg) is applied. Justification:
+
+      1. All comparisons are pre-specified and hypothesis-driven, not exploratory.
+      2. The comparisons test a small number of biologically motivated contrasts
+         (cell type, region, and their interaction for S4 cells).
+      3. With 32 tests at α = 0.05, ~1.6 false positives are expected by chance.
+         Readers should weight results by effect size (Cohen's d, rank-biserial r)
+         rather than relying on p-value thresholds alone.
+      4. Applying Bonferroni (α/32 = 0.0016) would be overly conservative given
+         the correlated nature of morphometric variables.
+
+    The 'significant' column uses uncorrected p < ALPHA. This decision and its
+    rationale must be stated explicitly in the dissertation methods section.
     """
     metrics = ['volume_um3', 'surface_area_um2', 'lateral_spread_um', 'z_span_um',
                'ipl_depth_pct', 'sa_v_ratio', 'sphericity', 'aspect_ratio']
@@ -581,11 +591,10 @@ def create_figure1_stratification(df: pd.DataFrame, output_dir: Path) -> None:
         ax.grid(axis='x', alpha=0.4, linestyle=':', linewidth=1)
         ax.set_axisbelow(True)
 
-        # Legend
-        if i == 0:
-            legend = ax.legend(loc='upper left', frameon=True, framealpha=0.95,
-                             edgecolor='gray', fancybox=True, shadow=True)
-            legend.get_frame().set_linewidth(1.5)
+        # Legend — shown on each panel so n-values are per-region, not ambiguous
+        legend = ax.legend(loc='upper left', frameon=True, framealpha=0.95,
+                         edgecolor='gray', fancybox=True, shadow=True)
+        legend.get_frame().set_linewidth(1.5)
 
     # X-axis label and limits
     axes[1].set_xlabel('IPL Depth (%)', fontsize=13, fontweight='bold')
@@ -706,7 +715,9 @@ def create_figure2_regional_comparison(df: pd.DataFrame, stats_df: pd.DataFrame,
             letter_idx += 1
 
             # Labels and styling
-            if col == 0:
+            # Show y-axis label on col=0 (all rows) and on all ventral panels (row=1),
+            # since row=1 has no column titles to identify the metric.
+            if col == 0 or row == 1:
                 ax.set_ylabel(ylabel.split('(')[0].strip(), fontsize=12, fontweight='bold')
             else:
                 ax.set_ylabel('')
@@ -793,13 +804,21 @@ def create_figure3_interrater(df: pd.DataFrame, output_dir: Path) -> None:
             r, p = stats.pearsonr(vl_vals, km_vals)
             r_squared = r**2
 
-            # Statistics box
-            stats_text = f'r = {r:.3f}\nR$^2$ = {r_squared:.3f}\np = {p:.3f}\nn = {len(vl_vals)}'
+            # Statistics box — flag non-significant correlations with (n.s.)
+            sig_flag = '' if p < 0.05 else ' (n.s.)'
+            stats_text = f'r = {r:.3f}{sig_flag}\nR$^2$ = {r_squared:.3f}\np = {p:.3f}\nn = {len(vl_vals)}'
             ax.text(0.05, 0.95, stats_text,
                    transform=ax.transAxes, verticalalignment='top',
                    bbox=dict(boxstyle='round,pad=0.6', facecolor='white',
                            edgecolor='black', linewidth=1.5, alpha=0.95),
                    fontsize=10, fontweight='bold')
+
+            # Add red dashed border to panels where correlation is not significant
+            if p >= 0.05:
+                for spine in ax.spines.values():
+                    spine.set_linewidth(2.5)
+                    spine.set_edgecolor('#CC0000')
+                    spine.set_linestyle('--')
 
             # Note: aspect ratio left free to prevent compression with mismatched ranges
 
@@ -826,7 +845,7 @@ def create_figure3_interrater(df: pd.DataFrame, output_dir: Path) -> None:
     axes[0].legend(handles=legend_elements, loc='lower right', frameon=True,
                   framealpha=0.95, edgecolor='black', fancybox=True, shadow=True)
 
-    plt.suptitle('Inter-Rater Reliability: VL vs KM Annotators',
+    plt.suptitle('Annotator Agreement: VL vs KM (Pearson r)',
                 fontsize=16, fontweight='bold', y=1.02)
     plt.tight_layout()
     plt.subplots_adjust(top=0.85)
@@ -941,10 +960,24 @@ def create_figure5_effect_heatmap(stats_df: pd.DataFrame, output_dir: Path) -> N
     pivot = pivot.rename(index=metric_labels, columns=comparison_labels)
     pivot_p = pivot_p.rename(index=metric_labels, columns=comparison_labels)
 
+    # Diagnostic: flag any NaN cells so missing comparisons are visible
+    nan_cells = pivot.isnull().stack()
+    nan_cells = nan_cells[nan_cells].index.tolist()
+    if nan_cells:
+        print(f"WARNING Figure 5: NaN cells in pivot (missing comparisons): {nan_cells}")
+    print(f"Figure 5 pivot columns: {pivot.columns.tolist()}")
+
+    # Build string annotation matrix — shows '–' for any NaN instead of blank
+    annot_matrix = pivot.copy().astype(object)
+    for row_idx in pivot.index:
+        for col_idx in pivot.columns:
+            val = pivot.loc[row_idx, col_idx]
+            annot_matrix.loc[row_idx, col_idx] = f'{val:.2f}' if not np.isnan(val) else '–'
+
     fig, ax = plt.subplots(figsize=(11, 9))
 
-    # Create heatmap with custom formatting
-    sns.heatmap(pivot, cmap='RdBu_r', center=0, annot=True, fmt='.2f',
+    # Create heatmap — use string annot matrix so NaN cells show '–' not blank
+    sns.heatmap(pivot, cmap='RdBu_r', center=0, annot=annot_matrix, fmt='',
                 cbar_kws={'label': "Cohen's d (Effect Size)", 'shrink': 0.8},
                 ax=ax, vmin=-5, vmax=5, linewidths=1.5, linecolor='white',
                 annot_kws={'size': 11, 'weight': 'bold'},
@@ -1114,8 +1147,41 @@ def generate_report(df_raw: pd.DataFrame, df_clean: pd.DataFrame, exclusions: li
 # ============================================================================
 
 def main() -> None:
-    """Main execution pipeline."""
+    """Main execution pipeline.
+
+    Usage:
+        python morphometrics_pipeline.py                  # full pipeline (processes STL files)
+        python morphometrics_pipeline.py --figures-only   # regenerate figures from pre-computed CSVs
+        python morphometrics_pipeline.py /path/to/dir     # run full pipeline on a specific directory
+    """
     configure_plot_style()
+
+    # --figures-only: skip STL processing, load pre-computed data, regenerate figures only
+    if '--figures-only' in sys.argv:
+        script_dir = Path(__file__).parent.resolve()
+        data_dir = script_dir / 'data'
+        output_dir = script_dir / 'figures'
+        output_dir.mkdir(exist_ok=True)
+
+        print("=" * 70)
+        print("FIGURES-ONLY MODE (using pre-computed data)")
+        print("=" * 70)
+        print(f"Loading from: {data_dir}")
+        print(f"Saving figures to: {output_dir}")
+        print()
+
+        df_clean = pd.read_csv(data_dir / 'morphometrics_clean.csv')
+        stats_df = pd.read_csv(data_dir / 'statistical_results.csv')
+
+        print(f"Loaded {len(df_clean)} cells and {len(stats_df)} statistical comparisons")
+        print("\n=== GENERATING FIGURES ===")
+        create_figure1_stratification(df_clean, output_dir)
+        create_figure2_regional_comparison(df_clean, stats_df, output_dir)
+        create_figure3_interrater(df_clean, output_dir)
+        create_figure4_shape_complexity(df_clean, output_dir)
+        create_figure5_effect_heatmap(stats_df, output_dir)
+        print("\nFigures regenerated successfully.")
+        return
 
     print("=" * 70)
     print("ZEBRAFISH BIPOLAR CELL 3D MORPHOMETRICS PIPELINE")

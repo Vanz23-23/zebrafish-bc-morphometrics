@@ -6,7 +6,7 @@ morphometric data and generates statistical comparisons and figures.
 
 Author: Vanz Labitad, University of Sussex
 Dissertation: Regional Morphological Specialisation of Monostratifying
-              Bipolar Cells in the Larval Zebrafish Retina (2025-2026)
+              Bipolar Cells in the Larval Zebrafish Retina (2025)
 """
 
 import sys
@@ -160,10 +160,21 @@ def run_comparisons(df: pd.DataFrame) -> pd.DataFrame:
       2. Dorsal vs Ventral (all cells) — broad regional differences
       3. Dorsal S4 vs Ventral S4 — key regional comparison for ON-pathway
 
-    NOTE on multiple comparisons: 3 comparisons × 4 metrics = 12 tests.
-    No FDR/Bonferroni correction is applied because these are pre-specified,
-    hypothesis-driven comparisons (not exploratory screening). The 'significant'
-    column uses uncorrected p < ALPHA. Document this in the methods section!
+    NOTE on multiple comparisons: 3 comparisons × 4 metrics = 12 tests
+    at α = 0.05. No family-wise correction (Bonferroni, Holm) or false discovery
+    rate control (Benjamini-Hochberg) is applied. Justification:
+
+      1. All comparisons are pre-specified and hypothesis-driven, not exploratory.
+      2. The three comparison families test biologically motivated contrasts
+         (cell type, region, and their interaction for S4 cells).
+      3. With 12 tests at α = 0.05, ~0.6 false positives are expected by chance.
+         Readers should weight results by effect size (Cohen's d, rank-biserial r)
+         rather than relying on p-value thresholds alone.
+      4. Applying Bonferroni (α/12 = 0.004) would be overly conservative given
+         the correlated nature of morphometric variables.
+
+    The 'significant' column uses uncorrected p < ALPHA. This decision and its
+    rationale must be stated explicitly in the dissertation methods section.
     """
     comparisons = [
         ("S2 vs S4", df[df["cell_type"] == "S2"], df[df["cell_type"] == "S4"]),
@@ -453,7 +464,7 @@ def main() -> None:
     results = run_comparisons(df)
     print_results(results)
 
-    # Save statistical results to CSV/excel
+    # Save statistical results to CSV for reproducibility
     results_path = OUTPUT_DIR / "stats_results.csv"
     results.to_csv(results_path, index=False)
     print(f"Saved: {results_path}")
