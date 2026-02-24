@@ -62,12 +62,12 @@ And there are different parts of the eye:
 
 ```mermaid
 flowchart LR
-    A["🔬 Super-powerful\nmicroscope slices the\nzebrafish eye paper-thin"] --> B["✏️ I traced around\neach cell by hand\n(like colouring in!)"]
-    B --> C["📦 Computer stitches\nthe tracings into\n3D shapes"]
-    C --> D["📐 My code measures\neach 3D shape\nautomatically"]
-    D --> E["🧹 Remove any\ndodgy-looking\ncells (37 removed)"]
-    E --> F["� Compare the\ngroups using\nstatistics"]
-    F --> G["� Make graphs\nthat tell\nthe story"]
+    A["🔬 Super-powerful nmicroscope slices the zebrafish eye paper-thin"] --> B["✏️ I traced around each cell by hand & Used scalabe minds AI to 3d render the selected cells (like colouring in)"]
+    B --> C["📦 Computer stitches the tracings into 3D shapes"]
+    C --> D["📐 My code measures  each 3D shape automatically"]
+    D --> E["🧹 Remove any  dodgy-looking cells (37 removed)"]
+    E --> F["� Compare the groups using statistics"]
+    F --> G["� Make graphs that tell the story"]
 ```
 
 </div>
