@@ -242,7 +242,7 @@ zebrafish-bc-morphometrics/
 
 <br/>
 
-## 💡 Skills I Used (a.k.a. why this project is cool)
+## 💡 Skills I Used 
 
 <table>
 <tr>
